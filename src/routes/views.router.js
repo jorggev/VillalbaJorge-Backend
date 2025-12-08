@@ -44,8 +44,6 @@ viewsRouter.get("/products/:pid", async (req, res) => {
     const product = await productService.getById(pid);
     if (!product) return res.status(404).send("Producto no encontrado");
 
-    // Mongoose returns a document, but handlebars needs a plain object if not using lean() query
-    // Since getById might not use lean(), we convert to object if possible
     const productObj = product.toObject ? product.toObject() : product;
 
     res.render("productDetails", { product: productObj });

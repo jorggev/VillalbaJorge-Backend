@@ -40,10 +40,6 @@ cartRouter.post("/:cid/product/:pid", passport.authenticate("jwt", { session: fa
     const cart = await cartService.getById(cid);
     if (!cart) return res.status(404).json({ status: "error", message: "Carrito no encontrado" });
 
-    // Check if user is trying to add to their own cart (optional but good practice, though requirement just says 'user' role)
-    // For now, adhering to requirement: "Solo el usuario puede agregar productos a su carrito"
-    // Ideally we should check if req.user.cart matches cid, but let's stick to role check first.
-
     const existing = cart.products.find(p => String(p.product._id || p.product) === String(pid));
     if (existing) {
       existing.quantity += quantity;
@@ -136,9 +132,6 @@ cartRouter.post("/:cid/purchase", passport.authenticate("jwt", { session: false 
         purchaser: req.user.email
       });
 
-      // Update cart with only products that were NOT purchased
-      // We need to reconstruct the cart products array. 
-      // The items in productsNotPurchased are IDs. We need to find the original items in the cart.
       cart.products = cart.products.filter(item => productsNotPurchased.includes(item.product._id || item.product));
       await cartService.update(cid, cart);
 
